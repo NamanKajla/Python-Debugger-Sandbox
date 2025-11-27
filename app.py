@@ -23,6 +23,23 @@ logger = logging.getLogger("debug-sandbox")
 
 app = FastAPI(title="Local Debugging Sandbox")
 
+from fastapi import File, UploadFile
+
+@app.post("/upload")
+async def upload_file(file: UploadFile = File(...)):
+    """
+    Accept a single text file upload and return its contents.
+    """
+    try:
+        content = await file.read()
+        text = content.decode('utf-8', errors='replace')
+        # return file name and text
+        return {"filename": file.filename, "text": text}
+    except Exception as e:
+        logger.exception("File upload failed")
+        raise HTTPException(status_code=500, detail="Failed to read uploaded file.")
+
+
 # add these imports near the top of app.py if not already present
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
@@ -232,8 +249,26 @@ def generate_patch_rule_based_v2(code: str, stderr: str):
             explanation = "Replaced tabs with 4 spaces to fix indentation."
             return new_code, diff, explanation
 
-        # 4) SyntaxError missing colon heuristic
+        # 4) targeted SyntaxError: missing colon
         if "syntaxerror" in stderr_low:
+            # If traceback gives a file line, try to add colon at that exact line
+            file_line = parsed.get("file_line")
+            if file_line:
+                mline = re.search(r'line\s+(\d+)', file_line)
+                if mline:
+                    lineno = int(mline.group(1))
+                    lines = code.splitlines()
+                    if 1 <= lineno <= len(lines):
+                        ln = lines[lineno - 1].rstrip()
+                        # Only add colon to control/def lines that miss it
+                        if re.match(r"\s*(def\s+\w+\(.*\)|if\s+.*|for\s+.*|while\s+.*|elif\s+.*|else\s*)$", ln) and not ln.endswith(":"):
+                            new_lines = lines.copy()
+                            new_lines[lineno - 1] = ln + ":"
+                            new_code = "\n".join(new_lines)
+                            diff = "\n".join(difflib.unified_diff(code.splitlines(), new_code.splitlines(), lineterm=""))
+                            explanation = f"Added missing ':' at line {lineno} (heuristic based on traceback)."
+                            return new_code, diff, explanation
+            # Fallback to the broader heuristic if we couldn't target the line
             changed = False
             new_lines = []
             for ln in code.splitlines():
@@ -245,8 +280,9 @@ def generate_patch_rule_based_v2(code: str, stderr: str):
             if changed:
                 new_code = "\n".join(new_lines)
                 diff = "\n".join(difflib.unified_diff(code.splitlines(), new_code.splitlines(), lineterm=""))
-                explanation = "Added missing colon(s) in control/function lines (heuristic)."
+                explanation = "Added missing colon(s) in control/function lines (fallback heuristic)."
                 return new_code, diff, explanation
+
 
         # 5) TypeError print concat -> convert to comma-separated args
         if "typeerror" in stderr_low and "can only concatenate" in stderr_low:

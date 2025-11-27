@@ -3,349 +3,530 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Debug Sandbox 🚀</title>
+  <title>AI Debug IDE</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
     :root {
-      --bg-gradient-start: #1a1a2e;
-      --bg-gradient-end: #16213e;
-      --text-color: #e4e4e7;
-      --card-bg: rgba(30, 30, 46, 0.9);
-      --card-border: rgba(255, 255, 255, 0.1);
-      --input-bg: rgba(0, 0, 0, 0.5);
-      --input-border: rgba(255, 255, 255, 0.15);
-      --section-bg: rgba(0, 0, 0, 0.3);
-      --pre-bg: rgba(0, 0, 0, 0.5);
-      --accent-color: #8b5cf6;
+      --bg-primary: #1e1e1e;
+      --bg-secondary: #252526;
+      --bg-tertiary: #2d2d30;
+      --border-color: #3e3e42;
+      --text-primary: #d4d4d4;
+      --text-secondary: #858585;
+      --accent-blue: #007acc;
+      --accent-green: #4ec9b0;
+      --accent-orange: #ce9178;
+      --accent-yellow: #dcdcaa;
+      --accent-red: #f48771;
+      --sidebar-bg: #333333;
+      --hover-bg: #2a2d2e;
+      --success: #89d185;
+      --error: #f48771;
+      --warning: #cca700;
     }
     
     body.light-mode {
-      --bg-gradient-start: #667eea;
-      --bg-gradient-end: #764ba2;
-      --text-color: #ffffff;
-      --card-bg: rgba(255, 255, 255, 0.15);
-      --card-border: rgba(255, 255, 255, 0.25);
-      --input-bg: rgba(255, 255, 255, 0.2);
-      --input-border: rgba(255, 255, 255, 0.3);
-      --section-bg: rgba(255, 255, 255, 0.1);
-      --pre-bg: rgba(0, 0, 0, 0.15);
-      --accent-color: #a78bfa;
+      --bg-primary: #ffffff;
+      --bg-secondary: #f3f3f3;
+      --bg-tertiary: #e8e8e8;
+      --border-color: #d4d4d4;
+      --text-primary: #1e1e1e;
+      --text-secondary: #6a6a6a;
+      --sidebar-bg: #f3f3f3;
+      --hover-bg: #e8e8e8;
     }
     
     body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
-      min-height: 100vh;
-      padding: 20px;
-      color: var(--text-color);
-      transition: all 0.3s ease;
-    }
-    
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      animation: fadeIn 0.6s ease-out;
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    header {
-      text-align: center;
-      margin-bottom: 40px;
-      animation: slideDown 0.8s ease-out;
-    }
-    
-    @keyframes slideDown {
-      from { opacity: 0; transform: translateY(-30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    h1 {
-      font-size: 2.8rem;
-      font-weight: 700;
-      margin-bottom: 10px;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-      letter-spacing: -1px;
-    }
-    
-    .subtitle {
-      font-size: 1.1rem;
-      opacity: 0.9;
-      font-weight: 300;
-    }
-    
-    .theme-toggle {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: var(--card-bg);
-      backdrop-filter: blur(10px);
-      border: 2px solid var(--card-border);
-      border-radius: 50px;
-      padding: 10px 20px;
-      cursor: pointer;
-      font-size: 24px;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-      z-index: 1000;
-    }
-    
-    .theme-toggle:hover {
-      transform: scale(1.1) rotate(10deg);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-    }
-    
-    .theme-toggle:active {
-      transform: scale(0.95);
-    }
-    
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      margin-bottom: 24px;
-    }
-    
-    .card {
-      background: var(--card-bg);
-      backdrop-filter: blur(10px);
-      border-radius: 16px;
-      padding: 28px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-      border: 1px solid var(--card-border);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    
-    .card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-    }
-    
-    .card-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-    
-    .icon {
-      width: 32px;
-      height: 32px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-    }
-    
-    h3 {
-      font-size: 1.4rem;
-      font-weight: 600;
-    }
-    
-    textarea {
-      width: 100%;
-      height: 400px;
-      background: var(--input-bg);
-      border: 2px solid var(--input-border);
-      border-radius: 12px;
-      padding: 16px;
-      color: var(--text-color);
-      font-family: 'Courier New', monospace;
-      font-size: 14px;
-      resize: vertical;
-      transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    }
-    
-    textarea:focus {
-      outline: none;
-      border-color: rgba(102, 126, 234, 0.6);
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
-    }
-    
-    textarea::placeholder {
-      color: var(--text-color);
-      opacity: 0.4;
-    }
-    
-    .button-group {
-      display: flex;
-      gap: 12px;
-      margin-top: 16px;
-    }
-    
-    button {
-      flex: 1;
-      padding: 14px 24px;
-      border: none;
-      border-radius: 10px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      height: 100vh;
       overflow: hidden;
     }
     
-    button::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 0;
-      height: 0;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.3);
-      transform: translate(-50%, -50%);
-      transition: width 0.6s, height 0.6s;
+    /* IDE LAYOUT */
+    .ide-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
     }
     
-    button:hover::before {
-      width: 300px;
-      height: 300px;
-    }
-    
-    button span {
-      position: relative;
-      z-index: 1;
-    }
-    
-    #runBtn {
-      background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
-      color: white;
-      box-shadow: 0 4px 15px rgba(0, 176, 155, 0.4);
-    }
-    
-    #runBtn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0, 176, 155, 0.6);
-    }
-    
-    #runBtn:active {
-      transform: translateY(0);
-    }
-    
-    #resetBtn {
-      background: rgba(255, 255, 255, 0.15);
-      color: white;
-      border: 2px solid rgba(255, 255, 255, 0.3);
-    }
-    
-    #resetBtn:hover {
-      background: rgba(255, 255, 255, 0.25);
-      transform: translateY(-2px);
-    }
-    
-    .status-badge {
-      display: inline-block;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-weight: 600;
-      font-size: 14px;
-      margin-bottom: 16px;
-      animation: pulse 2s infinite;
-    }
-    
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.7; }
-    }
-    
-    .status-running {
-      background: rgba(255, 193, 7, 0.3);
-      color: #ffc107;
-      border: 2px solid #ffc107;
-    }
-    
-    .status-success {
-      background: rgba(76, 175, 80, 0.3);
-      color: #4caf50;
-      border: 2px solid #4caf50;
-    }
-    
-    .status-fail {
-      background: rgba(244, 67, 54, 0.3);
-      color: #f44336;
-      border: 2px solid #f44336;
-    }
-    
-    .section {
-      background: var(--section-bg);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 16px;
-    }
-    
-    .section h4 {
-      font-size: 1rem;
-      margin-bottom: 12px;
-      opacity: 0.9;
+    /* TOP BAR */
+    .top-bar {
+      background: var(--bg-tertiary);
+      height: 35px;
       display: flex;
       align-items: center;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--border-color);
+      gap: 20px;
+    }
+    
+    .top-bar-title {
+      font-size: 13px;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+    
+    .top-bar-menu {
+      display: flex;
+      gap: 15px;
+      font-size: 13px;
+    }
+    
+    .menu-item {
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    
+    .menu-item:hover {
+      color: var(--text-primary);
+    }
+    
+    /* MAIN CONTENT */
+    .main-content {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+    
+    /* SIDEBAR */
+    .sidebar {
+      width: 48px;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 0;
       gap: 8px;
     }
     
-    .iteration-log {
-      background: var(--section-bg);
-      border-left: 4px solid var(--accent-color);
-      padding: 16px;
-      margin-bottom: 12px;
-      border-radius: 8px;
-      animation: slideIn 0.4s ease-out;
+    .sidebar-icon {
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: 24px;
+      position: relative;
+      transition: color 0.2s;
     }
     
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(-20px); }
-      to { opacity: 1; transform: translateX(0); }
+    .sidebar-icon:hover, .sidebar-icon.active {
+      color: var(--text-primary);
     }
     
-    .patch {
-      background: rgba(76, 175, 80, 0.2);
-      border-left: 4px solid #4caf50;
-      padding: 16px;
-      margin-bottom: 12px;
-      border-radius: 8px;
-      animation: slideIn 0.4s ease-out;
+    .sidebar-icon.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--accent-blue);
     }
     
-    .patch em {
-      display: block;
-      margin-bottom: 8px;
-      color: #a5d6a7;
+    /* EXPLORER PANEL */
+    .explorer-panel {
+      width: 250px;
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
     }
     
-    pre {
-      background: var(--pre-bg);
-      padding: 12px;
-      border-radius: 8px;
-      overflow-x: auto;
+    .panel-header {
+      padding: 8px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .file-tree {
+      padding: 8px 0;
+    }
+    
+    .file-item {
+      padding: 4px 12px 4px 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
       font-size: 13px;
-      line-height: 1.5;
-      margin: 8px 0;
-      border: 1px solid var(--input-border);
+      color: var(--text-primary);
+      transition: background 0.2s;
     }
     
-    .empty-state {
-      text-align: center;
-      padding: 40px;
-      opacity: 0.6;
+    .file-item:hover {
+      background: var(--hover-bg);
+    }
+    
+    .file-item.active {
+      background: var(--hover-bg);
+    }
+    
+    .file-icon {
+      font-size: 16px;
+    }
+    
+    /* EDITOR AREA */
+    .editor-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    /* TABS */
+    .tabs-bar {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      height: 35px;
+      overflow-x: auto;
+    }
+    
+    .tab {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 12px;
+      font-size: 13px;
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+      border-right: 1px solid var(--border-color);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      white-space: nowrap;
+    }
+    
+    .tab.active {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+    
+    .tab:hover {
+      color: var(--text-primary);
+    }
+    
+    .tab-close {
+      margin-left: 4px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    
+    .tab:hover .tab-close {
+      opacity: 1;
+    }
+    
+    /* TOOLBAR */
+    .toolbar {
+      background: var(--bg-primary);
+      border-bottom: 1px solid var(--border-color);
+      padding: 8px 12px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    
+    .toolbar-btn {
+      padding: 6px 12px;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s, border-color 0.2s;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-weight: 500;
+    }
+    
+    .toolbar-btn:hover {
+      background: var(--hover-bg);
+      border-color: var(--accent-blue);
+    }
+    
+    .toolbar-btn.primary {
+      background: var(--accent-blue);
+      border-color: var(--accent-blue);
+      color: white;
+    }
+    
+    .toolbar-btn.primary:hover {
+      background: #006bb3;
+    }
+    
+    .toolbar-btn.success {
+      background: var(--success);
+      border-color: var(--success);
+      color: #1e1e1e;
+    }
+    
+    .toolbar-btn.warning {
+      background: var(--accent-orange);
+      border-color: var(--accent-orange);
+      color: white;
+    }
+    
+    .toolbar-separator {
+      width: 1px;
+      height: 20px;
+      background: var(--border-color);
+      margin: 0 4px;
+    }
+    
+    /* EDITOR */
+    .editor-container {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+    
+    .editor-pane {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    
+    .line-numbers {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 50px;
+      background: var(--bg-primary);
+      border-right: 1px solid var(--border-color);
+      padding: 12px 8px;
+      text-align: right;
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      user-select: none;
+      overflow: hidden;
+    }
+    
+    #codeArea {
+      flex: 1;
+      padding: 12px 12px 12px 62px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      border: none;
+      outline: none;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      resize: none;
+      tab-size: 4;
+    }
+    
+    /* OUTPUT PANEL */
+    .output-panel {
+      width: 400px;
+      background: var(--bg-secondary);
+      border-left: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    .output-tabs {
+      display: flex;
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .output-tab {
+      padding: 8px 16px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+    
+    .output-tab.active {
+      color: var(--text-primary);
+      border-bottom-color: var(--accent-blue);
+    }
+    
+    .output-tab:hover {
+      color: var(--text-primary);
+    }
+    
+    .output-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+    }
+    
+    .output-section {
+      margin-bottom: 16px;
+    }
+    
+    .output-section-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .log-entry {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 12px;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+    
+    .log-header {
+      color: var(--accent-blue);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    
+    .log-content {
+      color: var(--text-secondary);
+      white-space: pre-wrap;
+      font-family: 'Consolas', monospace;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+    
+    .patch-entry {
+      background: var(--bg-primary);
+      border-left: 3px solid var(--success);
+      padding: 12px;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+    
+    .patch-explanation {
+      color: var(--accent-green);
+      margin-bottom: 6px;
       font-style: italic;
     }
     
+    .patch-diff {
+      color: var(--text-secondary);
+      white-space: pre-wrap;
+      font-family: 'Consolas', monospace;
+      font-size: 11px;
+    }
+    
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    
+    .status-success {
+      background: rgba(137, 209, 133, 0.2);
+      color: var(--success);
+      border: 1px solid var(--success);
+    }
+    
+    .status-error {
+      background: rgba(244, 135, 113, 0.2);
+      color: var(--error);
+      border: 1px solid var(--error);
+    }
+    
+    .status-running {
+      background: rgba(204, 167, 0, 0.2);
+      color: var(--warning);
+      border: 1px solid var(--warning);
+    }
+    
+    .empty-state {
+      color: var(--text-secondary);
+      text-align: center;
+      padding: 40px 20px;
+      font-size: 13px;
+      font-style: italic;
+    }
+    
+    /* STATUS BAR */
+    .status-bar {
+      background: var(--accent-blue);
+      color: white;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      font-size: 12px;
+      gap: 16px;
+    }
+    
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .theme-toggle-btn {
+      margin-left: auto;
+      cursor: pointer;
+      padding: 2px 8px;
+      border-radius: 3px;
+      transition: background 0.2s;
+    }
+    
+    .theme-toggle-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    
+    /* SCROLLBAR */
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: var(--bg-secondary);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 5px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-secondary);
+    }
+    
+    /* SPINNER */
     .spinner {
-      border: 3px solid rgba(255, 255, 255, 0.3);
-      border-top: 3px solid white;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top: 2px solid currentColor;
       border-radius: 50%;
-      width: 20px;
-      height: 20px;
+      width: 14px;
+      height: 14px;
       animation: spin 1s linear infinite;
       display: inline-block;
-      margin-right: 8px;
     }
     
     @keyframes spin {
@@ -353,163 +534,344 @@
       100% { transform: rotate(360deg); }
     }
     
-    @media (max-width: 968px) {
-      .grid {
-        grid-template-columns: 1fr;
+    /* RESPONSIVE */
+    @media (max-width: 1024px) {
+      .output-panel {
+        width: 300px;
       }
       
-      h1 {
-        font-size: 2rem;
+      .explorer-panel {
+        width: 200px;
       }
-      
-      textarea {
-        height: 300px;
-      }
+    }
+    
+    #fileInput {
+      display: none;
     }
   </style>
 </head>
 <body>
-  <button class="theme-toggle" id="themeToggle" title="Toggle theme">🌙</button>
-  
-  <div class="container">
-    <header>
-      <h1>🤖 AI Debug Sandbox</h1>
-      <p class="subtitle">Automatic Python error detection & fixing powered by AI</p>
-    </header>
 
-    <div class="grid">
-      <div class="card">
-        <div class="card-header">
-          <div class="icon">💻</div>
-          <h3>Code Editor</h3>
+<div class="ide-container">
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="top-bar-title">AI Debug IDE</div>
+    <div class="top-bar-menu">
+      <span class="menu-item">File</span>
+      <span class="menu-item">Edit</span>
+      <span class="menu-item">View</span>
+      <span class="menu-item">Run</span>
+      <span class="menu-item">Help</span>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-icon active" title="Explorer">📁</div>
+      <div class="sidebar-icon" title="Search">🔍</div>
+      <div class="sidebar-icon" title="Source Control">🔀</div>
+      <div class="sidebar-icon" title="Debug">🐛</div>
+      <div class="sidebar-icon" title="Extensions">⚡</div>
+    </div>
+
+    <!-- EXPLORER PANEL -->
+    <div class="explorer-panel">
+      <div class="panel-header">EXPLORER</div>
+      <div class="file-tree">
+        <div class="file-item active">
+          <span class="file-icon">🐍</span>
+          <span>main.py</span>
         </div>
-        <textarea id="codeArea" placeholder="# Paste your Python code here...">print(x)</textarea>
-        <div class="button-group">
-          <button id="runBtn"><span>▶ Run & Auto-fix</span></button>
-          <button id="resetBtn"><span>↻ Reset</span></button>
+        <div class="file-item">
+          <span class="file-icon">📄</span>
+          <span>README.md</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- EDITOR AREA -->
+    <div class="editor-area">
+      <!-- TABS -->
+      <div class="tabs-bar">
+        <div class="tab active">
+          <span>🐍</span>
+          <span>main.py</span>
+          <span class="tab-close">×</span>
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-header">
-          <div class="icon">📊</div>
-          <h3>Debug Results</h3>
-        </div>
+      <!-- TOOLBAR -->
+      <div class="toolbar">
+        <label for="fileInput">
+          <button class="toolbar-btn" id="uploadBtn">
+            <span>📁</span>
+            <span>Upload</span>
+          </button>
+        </label>
+        <input type="file" id="fileInput" accept=".py,text/plain" />
         
+        <button class="toolbar-btn primary" id="runBtn">
+          <span>▶</span>
+          <span>Run</span>
+        </button>
+        
+        <button class="toolbar-btn warning" id="fixBtn">
+          <span>🔧</span>
+          <span>Auto-Fix</span>
+        </button>
+        
+        <div class="toolbar-separator"></div>
+        
+        <button class="toolbar-btn" id="resetBtn">
+          <span>↻</span>
+          <span>Reset</span>
+        </button>
+      </div>
+
+      <!-- EDITOR -->
+      <div class="editor-container">
+        <div class="editor-pane">
+          <div class="line-numbers" id="lineNumbers">1</div>
+          <textarea id="codeArea" spellcheck="false">print(x)</textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT PANEL -->
+    <div class="output-panel">
+      <div class="output-tabs">
+        <div class="output-tab active">OUTPUT</div>
+        <div class="output-tab">PROBLEMS</div>
+        <div class="output-tab">DEBUG</div>
+      </div>
+      
+      <div class="output-content">
         <div id="summary"></div>
         
-        <div class="section">
-          <h4>🔄 Iteration Logs</h4>
-          <div id="logs"><div class="empty-state">Run your code to see logs</div></div>
+        <div class="output-section">
+          <div class="output-section-title">
+            <span>🔄</span>
+            <span>EXECUTION LOGS</span>
+          </div>
+          <div id="logs">
+            <div class="empty-state">Run your code to see execution logs</div>
+          </div>
         </div>
         
-        <div class="section">
-          <h4>🔧 Applied Patches</h4>
-          <div id="patches"><div class="empty-state">No patches yet</div></div>
+        <div class="output-section">
+          <div class="output-section-title">
+            <span>🔧</span>
+            <span>APPLIED PATCHES</span>
+          </div>
+          <div id="patches">
+            <div class="empty-state">No patches applied yet</div>
+          </div>
         </div>
         
-        <div class="section">
-          <h4>✨ Final Code</h4>
-          <pre id="finalCode"><span style="opacity:0.6">Your fixed code will appear here</span></pre>
+        <div class="output-section">
+          <div class="output-section-title">
+            <span>✨</span>
+            <span>FIXED CODE</span>
+          </div>
+          <div id="finalCode">
+            <div class="empty-state">Fixed code will appear here</div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-<script>
-const sampleCode = `print(x)`;
+  <!-- STATUS BAR -->
+  <div class="status-bar">
+    <div class="status-item">
+      <span>🐍</span>
+      <span>Python</span>
+    </div>
+    <div class="status-item">
+      <span>UTF-8</span>
+    </div>
+    <div class="status-item">
+      <span>Ln 1, Col 1</span>
+    </div>
+    <div class="theme-toggle-btn" id="themeToggle" title="Toggle Theme">
+      <span>🌙</span>
+    </div>
+  </div>
+</div>
 
-// Theme toggle functionality
+<script>
+// Theme toggle
 const themeToggle = document.getElementById('themeToggle');
 const body = document.body;
-
-// Check for saved theme preference or default to dark mode
 const currentTheme = localStorage.getItem('theme') || 'dark';
+
 if (currentTheme === 'light') {
   body.classList.add('light-mode');
-  themeToggle.textContent = '☀️';
+  themeToggle.innerHTML = '<span>☀️</span>';
 }
 
 themeToggle.addEventListener('click', () => {
   body.classList.toggle('light-mode');
   const isLight = body.classList.contains('light-mode');
-  themeToggle.textContent = isLight ? '☀️' : '🌙';
+  themeToggle.innerHTML = isLight ? '<span>☀️</span>' : '<span>🌙</span>';
   localStorage.setItem('theme', isLight ? 'light' : 'dark');
 });
 
-document.getElementById('resetBtn').onclick = () => {
-  document.getElementById('codeArea').value = sampleCode;
-  document.getElementById('summary').innerHTML = '';
-  document.getElementById('logs').innerHTML = '<div class="empty-state">Run your code to see logs</div>';
-  document.getElementById('patches').innerHTML = '<div class="empty-state">No patches yet</div>';
-  document.getElementById('finalCode').innerHTML = '<span style="opacity:0.6">Your fixed code will appear here</span>';
+// Line numbers
+const codeArea = document.getElementById('codeArea');
+const lineNumbers = document.getElementById('lineNumbers');
+
+function updateLineNumbers() {
+  const lines = codeArea.value.split('\n').length;
+  lineNumbers.textContent = Array.from({length: lines}, (_, i) => i + 1).join('\n');
+}
+
+codeArea.addEventListener('input', updateLineNumbers);
+codeArea.addEventListener('scroll', () => {
+  lineNumbers.scrollTop = codeArea.scrollTop;
+});
+
+updateLineNumbers();
+
+// File upload
+document.getElementById("uploadBtn").onclick = () => {
+  document.getElementById("fileInput").click();
 };
 
-document.getElementById('runBtn').onclick = async () => {
-  const code = document.getElementById('codeArea').value;
-  document.getElementById('summary').innerHTML = '<div class="status-badge status-running"><span class="spinner"></span>Running analysis...</div>';
-  document.getElementById('logs').innerHTML = '<div class="empty-state">Processing...</div>';
-  document.getElementById('patches').innerHTML = '<div class="empty-state">Analyzing...</div>';
-  document.getElementById('finalCode').innerHTML = '<span style="opacity:0.6">Processing...</span>';
-  
+document.getElementById("fileInput").addEventListener("change", async (ev) => {
+  const file = ev.target.files[0];
+  if (!file) return;
+
+  const form = new FormData();
+  form.append("file", file);
+
   try {
-    const resp = await fetch('http://127.0.0.1:8000/run', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code, max_iterations: 3, timeout_seconds: 3 })
+    const resp = await fetch("http://127.0.0.1:8000/upload", {
+      method: "POST",
+      body: form
     });
-    
+
+    const data = await resp.json();
+    codeArea.value = data.text;
+    updateLineNumbers();
+    document.getElementById("summary").innerHTML = `<div class="status-badge status-success">📁 Loaded: ${escapeHtml(data.filename)}</div>`;
+  } catch (e) {
+    document.getElementById("summary").innerHTML = `<div class="status-badge status-error">❌ Upload failed: ${escapeHtml(e.message)}</div>`;
+  }
+});
+
+// Run without fixing
+document.getElementById("runBtn").onclick = async () => {
+  await runOrFix(false);
+};
+
+// Fix and apply patches
+document.getElementById("fixBtn").onclick = async () => {
+  await runOrFix(true);
+};
+
+// Core run/fix handler
+async function runOrFix(applyFix) {
+  const code = codeArea.value;
+
+  document.getElementById("summary").innerHTML = '<div class="status-badge status-running"><span class="spinner"></span> Processing...</div>';
+  document.getElementById("logs").innerHTML = '<div class="empty-state">Running...</div>';
+  document.getElementById("patches").innerHTML = '<div class="empty-state">Analyzing...</div>';
+  document.getElementById("finalCode").innerHTML = '<div class="empty-state">Processing...</div>';
+
+  try {
+    const resp = await fetch("http://127.0.0.1:8000/run", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        code,
+        max_iterations: 5,
+        timeout_seconds: 3
+      })
+    });
+
     if (!resp.ok) {
       const err = await resp.json();
-      document.getElementById('summary').innerHTML = `<div class="status-badge status-fail">❌ Error: ${escapeHtml(err.detail)}</div>`;
+      document.getElementById("summary").innerHTML = `<div class="status-badge status-error">❌ Error: ${escapeHtml(err.detail)}</div>`;
       return;
     }
-    
+
     const data = await resp.json();
-    
+
     // Summary
-    document.getElementById('summary').innerHTML = data.success 
-      ? '<div class="status-badge status-success">✅ Success — Code executed without errors!</div>' 
-      : '<div class="status-badge status-fail">⚠️ Failed to auto-fix all issues</div>';
-    
+    document.getElementById("summary").innerHTML = data.success 
+      ? '<div class="status-badge status-success">✅ Execution successful</div>' 
+      : '<div class="status-badge status-error">⚠️ Errors detected</div>';
+
     // Logs
-    if (data.logs && data.logs.length) {
-      document.getElementById('logs').innerHTML = data.logs.map(l => `
-        <div class="iteration-log">
-          <strong>Iteration ${l.iteration}</strong>
-          <pre><strong>stdout:</strong>\n${escapeHtml(l.stdout) || '(empty)'}\n\n<strong>stderr:</strong>\n${escapeHtml(l.stderr) || '(empty)'}</pre>
-        </div>
-      `).join('');
+    if (data.logs && data.logs.length > 0) {
+      document.getElementById("logs").innerHTML = data.logs
+        .map(l => `
+          <div class="log-entry">
+            <div class="log-header">Iteration ${l.iteration}</div>
+            <div class="log-content"><strong>stderr:</strong>
+${escapeHtml(l.stderr) || '(empty)'}
+
+<strong>stdout:</strong>
+${escapeHtml(l.stdout) || '(empty)'}</div>
+          </div>
+        `).join('');
     } else {
-      document.getElementById('logs').innerHTML = '<div class="empty-state">No iteration logs</div>';
+      document.getElementById("logs").innerHTML = '<div class="empty-state">No logs generated</div>';
     }
-    
+
     // Patches
-    if (data.patches && data.patches.length) {
-      document.getElementById('patches').innerHTML = data.patches.map(p => `
-        <div class="patch">
-          <strong>Iteration ${p.iteration}</strong>
-          <em>${escapeHtml(p.explanation)}</em>
-          <pre>${escapeHtml(p.diff)}</pre>
-        </div>
-      `).join('');
+    if (data.patches && data.patches.length > 0) {
+      document.getElementById("patches").innerHTML = data.patches
+        .map(p => `
+          <div class="patch-entry">
+            <div class="patch-explanation">${escapeHtml(p.explanation)}</div>
+            <div class="patch-diff">${escapeHtml(p.diff)}</div>
+          </div>
+        `).join('');
     } else {
-      document.getElementById('patches').innerHTML = '<div class="empty-state">No patches needed</div>';
+      document.getElementById("patches").innerHTML = '<div class="empty-state">No patches needed</div>';
     }
-    
+
     // Final code
-    document.getElementById('finalCode').innerText = data.final_code || code;
-    
+    if (data.final_code) {
+      document.getElementById("finalCode").innerHTML = `<div class="log-entry"><pre class="log-content">${escapeHtml(data.final_code)}</pre></div>`;
+      
+      // Apply fix to editor if requested
+      if (applyFix) {
+        codeArea.value = data.final_code;
+        updateLineNumbers();
+      }
+    } else {
+      document.getElementById("finalCode").innerHTML = '<div class="empty-state">No changes made</div>';
+    }
+
   } catch (e) {
-    document.getElementById('summary').innerHTML = `<div class="status-badge status-fail">❌ Exception: ${escapeHtml(e.message)}</div>`;
-    console.error('Request failed:', e);
+    document.getElementById("summary").innerHTML = `<div class="status-badge status-error">❌ Exception: ${escapeHtml(e.message)}</div>`;
   }
+}
+
+// Reset
+document.getElementById("resetBtn").onclick = () => {
+  codeArea.value = "print(x)";
+  updateLineNumbers();
+  document.getElementById("summary").innerHTML = "";
+  document.getElementById("logs").innerHTML = '<div class="empty-state">Run your code to see execution logs</div>';
+  document.getElementById("patches").innerHTML = '<div class="empty-state">No patches applied yet</div>';
+  document.getElementById("finalCode").innerHTML = '<div class="empty-state">Fixed code will appear here</div>';
 };
 
-function escapeHtml(s) { 
-  if (!s) return ''; 
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); 
+// HTML escape
+function escapeHtml(s) {
+  if (!s) return '';
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 }
 </script>
+
 </body>
 </html>
